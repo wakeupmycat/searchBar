@@ -141,13 +141,15 @@
         return {use, unuse}
     }
     let val, use;
+
     function req() {
         val = $(this).val();
         $.ajax({
             url: '/_/ai/v1/text/parse',
             type: 'post',
             data: JSON.stringify({
-                text: {text: val}
+                text: {text: val},
+                alg:"model"
             }),
             success: function (rData) {
                 use = freeWriting(rData.text).use;
@@ -187,7 +189,6 @@
         let str = '';
         use.map(function (item, index) {
             str += `<span>${item.text}</span>`;
-
         })
 
         $('#list').html(str)
