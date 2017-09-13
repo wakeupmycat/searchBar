@@ -151,15 +151,15 @@
                 text: {text: val},
                 alg:"t2t"
             }),
+            beforeSend:function () {
+                $('#list').html("<p>正在提取，请稍等...</p>")
+            },
             success: function (rData) {
-                console.log(rData);
                 use = rData.texts;
-                console.log(use);
                 let str = '';
                 use.map(function (item, index) {
-                    str += `<span>${item.name}</span>`;
+                        str += `<span>${item.name}</span>`;
                 })
-
                 $('#list').html(str)
             }
         })
@@ -192,17 +192,6 @@
 //    };
 //    $('#search').on('input porpertychange', throttle(req, 1000))
     $('#sub').on("click",req)
-    $('#search').on("input porpertychange",function () {
-        if($(this).val()==''){
-            $('#list').empty();
-            window.clearInterval(this.timer)
-        }else{
-            this.timer=window.setTimeout(function () {
-                $('#list').html("<p>正在提取，请稍等...</p>")
-            },1000);
-        }
-
-    })
 
 
 
