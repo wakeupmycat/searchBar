@@ -56,17 +56,16 @@
 <body>
 
 <div class="main">
-    <div></div>
     <div class="search-wrap">
         <div class="left">
             <p>病情描述...</p>
-            <textarea style="width: 100%;height: 100%;outline: none;margin-top: 10px;border: none" id="search"
+            <textarea style="width: 100%;height:280px;outline: none;margin-top: 10px;border: none" id="search"
                       placeholder="请输入内容"></textarea>
+            <button id="sub">提交</button>
         </div>
         <div class="right">
             <p>智能提取...</p>
             <div id="list">
-
             </div>
 
         </div>
@@ -76,7 +75,7 @@
 <script>
 
     const freeWriting = (data) => {
-        let tuples = data && data.tuples ? data.tuples : [];
+        let tuples = data && data.texts ? data.texts : [];
 
         let use = [],
             unuse = [];
@@ -143,56 +142,68 @@
     let val, use;
 
     function req() {
-        val = $(this).val();
+        val = $("#search").val();
+
         $.ajax({
-            url: '/_/ai/v1/text/parse',
+            url: '/_/ai/v1/text/analyzetext',
             type: 'post',
             data: JSON.stringify({
                 text: {text: val},
-                alg:"model"
+                alg:"t2t"
             }),
             success: function (rData) {
-                use = freeWriting(rData.text).use;
-                bindData(use)
+                console.log(rData);
+                use = rData.texts;
+                console.log(use);
+                let str = '';
+                use.map(function (item, index) {
+                    str += `<span>${item.name}</span>`;
+                })
+
+                $('#list').html(str)
             }
         })
     }
 
-    var throttle = function (fn, interval) {
-        var __self = fn,
-            timer,
-            firstTime = true;
+//    var throttle = function (fn, interval) {
+//        var __self = fn,
+//            timer,
+//            firstTime = true;
+//
+//        return function () {
+//            var args = arguments,
+//                __me = this;
+//
+//            if (firstTime) {
+//                __self.apply(__me, args);
+//                return firstTime = false;
+//            }
+//
+//            if (timer) {
+//                return false;
+//            }
+//
+//            timer = setTimeout(function () {
+//                clearTimeout(timer);
+//                timer = null;
+//                __self.apply(__me, args);
+//            }, interval || 500);
+//        };
+//    };
+//    $('#search').on('input porpertychange', throttle(req, 1000))
+    $('#sub').on("click",req)
+    $('#search').on("input porpertychange",function () {
+        if($(this).val()==''){
+            $('#list').empty();
+            window.clearInterval(this.timer)
+        }else{
+            this.timer=window.setTimeout(function () {
+                $('#list').html("<p>正在提取，请稍等...</p>")
+            },1000);
+        }
 
-        return function () {
-            var args = arguments,
-                __me = this;
+    })
 
-            if (firstTime) {
-                __self.apply(__me, args);
-                return firstTime = false;
-            }
-
-            if (timer) {
-                return false;
-            }
-
-            timer = setTimeout(function () {
-                clearTimeout(timer);
-                timer = null;
-                __self.apply(__me, args);
-            }, interval || 500);
-        };
-    };
-    $('#search').on('input porpertychange', throttle(req, 1000))
-
-    function bindData(use) {
-        let str = '';
-        use.map(function (item, index) {
-            str += `<span>${item.text}</span>`;
-        })
-
-        $('#list').html(str)
-    }
 
 
 </script>
